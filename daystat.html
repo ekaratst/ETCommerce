@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--<link rel="stylesheet" type="text/css" href="css/font/stylesheet.css">
+-->
+  <link rel="stylesheet" type="text/css" href="css/font/stylesheet.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+  <script src="/stylesheets/jquery-3.1.0.min.js"></script>
+	<script src="/libs/exceed.lib.js"></script>
+  <link rel="stylesheet" href="./css/responsive.css">
+
+    <link rel="stylesheet" href="./css/main.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+    <title>Document</title>
+
+</head>
+
+<body class="body" onbeforeunload="uploadToServer()">
+  <div class="innerbackground col-md-8 col-md-offset-2">
+  <div class="header">
+    <button class="hamburger">&#9776;</button>
+    <button class="cross">&#735;</button>
+    <h1>ETCommerce</h1>
+
+    <div class="menu">
+      <ul>
+        <a href="index.html"><li>Home</li></a>
+        <a href=""><li>Daily Statistics</li></a>
+        <a href="shelfstat.html"><li>Shelf Statistics</li></a>
+        <a href="lightcontrol.html"><li>Light Control</li></a>
+        <a href="gatecontrol.html"><li>Gate Control</li></a>
+      </ul>
+    </div>
+    <div class="btn-group btn-group-justified navibar " id="NAV" role="group" aria-label="...">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn navbtn"><a href="index.html">Home</a></button>
+      </div>
+      <div class="btn-group" role="group">
+        <div class=" static">
+        <button type="button"  style="color:rgb(255, 0, 46)" class="btn navbtn">Statistics <img src="image/arrowdown.png"/></button>
+              <ul class="staticmenu">
+                <li><a href="">Daily Statistics</a></li>
+                <li><a href="shelfstat.html">Shelf Statistics</a></li>
+              </ul>
+        </div>
+      </div>
+      <div class="btn-group" role="group">
+        <div class="control">
+        <button type="button" class="btn navbtn">Shop Control<img src="image/arrowdown.png"/></button>
+          <ul class="controlmenu">
+            <li><a href="lightcontrol.html">Light Control</a></li>
+            <li><a href="gatecontrol.html">Gate Control</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container" id="container" align="center">
+
+    	<label for="interval-select">Interval Select: </label>
+      <a class="waves-effect waves-light btn" id="weekButton" onclick="renderWeek()">7 days</a>
+    	<!-- <button type="button" id="weekButton" onclick="renderWeek()">7 days</button> -->
+    	<a class="waves-effect waves-light btn" id='monthButton' onclick="renderMonth()">30 days</a>
+      <span id = 'average'>Average : </span>
+     	<!-- <button type="button" id='monthButton' onclick="renderMonth()">30 days</button> -->
+  <!--  	<div id="container" style='width: 73%;height: 73%;'>-->
+      <div style="width:370px;height:370px;">
+    		<canvas id="myChart" width="400" height="400"></canvas>
+    	</div>
+  </div>
+  </div>
+  <script src="Chart.js"></script>
+  <script>
+
+	var ctx = document.getElementById("myChart");
+	var numberAr = [];
+	var dateAr = [];
+
+
+	$.ajax({
+
+		url: 'http://10.32.176.4/etc_data/'
+	})
+
+	.done(function(data){
+
+		var temparr = data.split('&');
+		var datetemp = temparr[0].split(',');
+		var numtemp = temparr[1].split(',');
+
+		for(var i = 0; i < datetemp.length ; i++ ){
+			dateAr.push(datetemp[i]);
+			console.log(dateAr[i]);
+			numberAr.push(numtemp[i]);
+			console.log(numberAr[i]);
+
+		}
+		init();
+	})
+
+
+
+
+	function init(){
+
+		var testnumberAr = [];
+		var testdateAr = [];
+    var average = 0;
+		for ( var i = 7 ; i > 0 ; i--){
+			testnumberAr.push( numberAr[numberAr.length - i] );
+			testdateAr.push( dateAr[dateAr.length - i ] );
+		}
+    for( var i = 0 ; i < 7 ; i++){
+    average += parseInt(testnumberAr[i],10);
+    console.log(average);
+     }
+
+    document.getElementById( 'average' ).innerHTML=( 'Average : ' +parseInt(average/7,10));
+
+
+		myChart = new Chart(ctx,{
+			type: 'bar',
+			data: {
+				labels:testdateAr,
+				// labels: label,
+				datasets: [{
+					label: '#of customer',
+					data: testnumberAr,
+					// data: data,
+					backgroundColor: [
+						'rgba(255, 99, 132, 0.2)',
+						'rgba(54, 162, 235, 0.2)',
+						'rgba(255, 206, 86, 0.2)',
+						'rgba(75, 192, 192, 0.2)',
+						'rgba(153, 102, 255, 0.2)',
+						'rgba(255, 159, 64, 0.2)',
+						'rgba(255, 200, 200, 0.2)'
+					],
+					borderColor: [
+						'rgba(255,99,132,1)',
+						'rgba(54, 162, 235, 1)',
+						'rgba(255, 206, 86, 1)',
+						'rgba(75, 192, 192, 1)',
+						'rgba(153, 102, 255, 1)',
+						'rgba(255, 159, 64, 1)',
+						'rgba(255, 200, 200, 1)'
+					],
+					borderWidth: 1
+				}]
+			},
+			options: {
+				scales: {
+					yAxes: [{
+						ticks: {
+							beginAtZero:true
+						}
+					}]
+				}
+			}
+		});
+	}
+
+	function renderWeek(){
+		myChart.destroy();
+
+		var testnumberAr = [];
+		var testdateAr = [];
+    // var average = 0;
+		for ( var i = 7 ; i > 0 ; i--){
+			testnumberAr.push( numberAr[numberAr.length - i] );
+			testdateAr.push( dateAr[dateAr.length - i ] );
+
+		}
+
+    // for( var i = 0 ; i < 7 ; i++){
+    //   average += parseInt(testnumberAr[i],10);
+    // }
+
+    // document.getElementById('average').text('Average : '+average/7);
+
+
+		myChart = new Chart(ctx,{
+			type: 'bar',
+			data: {
+				labels:testdateAr,
+				// labels: label,
+				datasets: [{
+					label: '#of customer',
+					data: testnumberAr,
+					// data: data,
+					backgroundColor: [
+						'rgba(255, 99, 132, 0.2)',
+						'rgba(54, 162, 235, 0.2)',
+						'rgba(255, 206, 86, 0.2)',
+						'rgba(75, 192, 192, 0.2)',
+						'rgba(153, 102, 255, 0.2)',
+						'rgba(255, 159, 64, 0.2)',
+						'rgba(255, 200, 200, 0.2)'
+					],
+					borderColor: [
+						'rgba(255,99,132,1)',
+						'rgba(54, 162, 235, 1)',
+						'rgba(255, 206, 86, 1)',
+						'rgba(75, 192, 192, 1)',
+						'rgba(153, 102, 255, 1)',
+						'rgba(255, 159, 64, 1)',
+						'rgba(255, 200, 200, 1)'
+					],
+					borderWidth: 1
+				}]
+			},
+			options: {
+				scales: {
+					yAxes: [{
+						ticks: {
+							beginAtZero:true
+						}
+					}]
+				}
+			}
+		});
+
+	}
+
+	function renderMonth(){
+
+		myChart.destroy();
+
+		var testnumberAr = [];
+		var testdateAr = [];
+    var average = 0;
+		for ( var i = 30 ; i > 0 ; i--){
+			testnumberAr.push( numberAr[numberAr.length - i] );
+			testdateAr.push( dateAr[dateAr.length - i ] );
+		}
+
+    // for (var i = 0 ; i < 30 ; i++ ){
+    //   average += parseInt(testnumberAr[i],10);
+    // }
+
+    // document.getElementById('average').text('Average : '+ average/30);
+		myChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+
+				labels: testdateAr,
+				datasets: [
+					{
+						label: "#of customer",
+						fill: true ,
+						lineTension: 0.2,
+						backgroundColor: "rgba(75,192,192,0.4)",
+						borderColor: "rgba(75,192,192,1)",
+						borderCapStyle: 'butt',
+						borderDash: [],
+						borderDashOffset: 0.0,
+						borderJoinStyle: 'miter',
+						pointBorderColor: "rgba(75,192,192,1)",
+						pointBackgroundColor: "#fff",
+						pointBorderWidth: 1,
+						pointHoverRadius: 5,
+						pointHoverBackgroundColor: "rgba(75,192,192,1)",
+						pointHoverBorderColor: "rgba(220,220,220,1)",
+						pointHoverBorderWidth: 2,
+						pointRadius: 3,
+						pointHitRadius: 10,
+						data: testnumberAr,
+						spanGaps: false,
+
+					}
+				]
+			},
+			options: {
+				scales: {
+					xAxes: [{
+						display: true
+					}]
+				}
+			}
+		});
+
+	}
+
+
+	setInterval( function(){
+		$.ajax({
+			url: 'http://10.32.176.4/etc/'
+		})
+		.done( function( data ) {
+			if ( data == 5 ){
+
+				numberAr[numberAr.length-1]=parseInt(numberAr[numberAr.length-1],10)+1;
+
+				console.log("success");
+        clear();
+			}
+			var date = new Date();
+
+			if ( date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0 ) {
+
+            numberAr.push(0);
+            var day = date.toDateString();
+            dateAr.push( day );
+
+          }
+			console.log("sss");
+		});
+	},1000);
+
+  function clear() {
+    $.ajax({
+      url: 'http://10.32.176.4/etc/' + '0/set'
+    });
+  }
+	//window.onbeforeunload = uploadToServer();
+// 	$(window).onbeforeunload(function(e){
+//     uploadToServer();
+// });
+
+	function uploadToServer(){
+
+		//var dateAr = ['Sun Jul 3 2016','Mon Jul 4 2016','Tue Jul 5 2016','Wed Jul 6 2016','Thu Jul 7 2016','Fri Jul 8 2016','Sat Jul 9 2016','Sun Jul 10 2016','Mon Jul 11 2016','Tue Jul 12 2016','Wed Jul 13 2016','Thu Jul 14 2016','Fri Jul 15 2016','Sat Jul 16 2016','Sun Jul 17 2016','Mon Jul 18 2016','Tue Jul 19 2016','Wed Jul 20 2016','Thu Jul 21 2016','Fri Jul 22 2016','Sat Jul 23 2016','Sun Jul 24 2016','Mon Jul 25 2016','Tue Jul 26 2016','Wed Jul 27 2016','Thu Jul 28 2016','Fri Jul 29 2016','Sat Jul 30 2016','Sun Jul 31 2016' ,'Mon Aug 01 2016', 'Tue Aug 02 2016','Wed Aug 03 2016']
+		//var numberAr = [ 23, 19, 25, 20, 15, 33, 30, 21, 23, 19, 30, 33, 22, 32, 17, 23, 21, 32, 19, 30, 23, 19, 28, 31, 23, 34, 35, 32, 37, 34, 21 ,24 ];
+
+
+		$.ajax({
+
+			url: 'http://10.32.176.4/etc_data/'+dateAr.toString()+'&'+numberAr.toString()+'/set'
+		})
+
+		.done(function(data){
+			console.log("dd");
+		})
+	}
+
+
+	</script>
+
+  <script lang="javascript">
+  $('.static > button').click(function(){
+        if($('.staticmenu').hasClass("open-hiddenmenu"))
+        {
+          $('.staticmenu').removeClass("open-hiddenmenu");
+        }
+        else
+        {
+          $('.staticmenu').addClass("open-hiddenmenu");
+          $('.controlmenu').removeClass("open-hiddenmenu");
+
+        }
+    });
+    $('.control > button').click(function(){
+          if($('.controlmenu').hasClass("open-hiddenmenu"))
+          {
+            $('.controlmenu').removeClass("open-hiddenmenu");
+          }
+          else
+          {
+            $('.controlmenu').addClass("open-hiddenmenu");
+            $('.staticmenu').removeClass("open-hiddenmenu");
+          }
+      });
+
+$(".cross").addClass('.hideee');
+$(".menu").addClass('.hideee');
+$(".hamburger" ).click(function() {
+
+$( ".menu" ).slideToggle( "slow", function() {
+$( ".hamburger" ).addClass('.hideee');
+$( ".cross" ).addClass('.showww');
+
+});
+});
+
+$( ".cross" ).click(function() {
+$( ".menu" ).slideToggle( "slow", function() {
+$( ".cross" ).addClass('.hideee');
+$( ".hamburger" ).addClass('.showww');
+});
+});
+
+  </script>
+  <script type='text/javascript'>
+    /*Javascript language*/
+
+    /* components */
+
+
+
+  </script>
+</body>

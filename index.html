@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--<link rel="stylesheet" type="text/css" href="css/font/stylesheet.css">
+-->
+  <link rel="stylesheet" type="text/css" href="css/font/stylesheet.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+
+    <link rel="stylesheet" href="./css/main.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+    <title>Document</title>
+
+</head>
+
+<body class="body" onbeforeunload="saveData()">
+  <div class="innerbackground col-md-8 col-md-offset-2">
+  <div class="header">
+    <button class="hamburger">&#9776;</button>
+    <button class="cross">&#735;</button>
+    <h1>ETCommerce</h1>
+
+    <div class="menu">
+      <ul>
+        <a href=""><li>Home</li></a>
+        <a href="daystat.html"><li>Daily Statistics</li></a>
+        <a href="shelfstat.html"><li>Shelf Statistics</li></a>
+        <a href="lightcontrol.html"><li>Light Control</li></a>
+        <a href="gatecontrol.html"><li>Gate Control</li></a>
+      </ul>
+    </div>
+    <div class="btn-group btn-group-justified navibar " id="NAV" role="group" aria-label="...">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn navbtn">Home</button>
+      </div>
+      <div class="btn-group" role="group">
+        <div class=" static">
+        <button type="button" class="btn navbtn">Statistics <img src="image/arrowdown.png"/></button>
+              <ul class="staticmenu">
+                <li><a href="daystat.html">Daily Statistics</a></li>
+                <li><a href="shelfstat.html">Shelf Statistics</a></li>
+              </ul>
+        </div>
+      </div>
+      <div class="btn-group" role="group">
+        <div class="control">
+        <button type="button" class="btn navbtn">Shop Control<img src="image/arrowdown.png"/></button>
+          <ul class="controlmenu">
+            <li><a href="lightcontrol.html">Light Control</a></li>
+            <li><a href="gatecontrol.html">Gate Control</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container" id="container" align="center">
+      <img class="icon" src="image/people-2.png"/>
+      <h1>ENTER</h1>
+      <p id="entering">0</p>
+      <h1>DATE</h1>
+      <p id="today"></p>
+  </div>
+  </div>
+  <script lang="javascript">
+  $('.static > button').click(function(){
+        if($('.staticmenu').hasClass("open-hiddenmenu"))
+        {
+          $('.staticmenu').removeClass("open-hiddenmenu");
+        }
+        else
+        {
+          $('.staticmenu').addClass("open-hiddenmenu");
+          $('.controlmenu').removeClass("open-hiddenmenu");
+
+        }
+    });
+    $('.control > button').click(function(){
+          if($('.controlmenu').hasClass("open-hiddenmenu"))
+          {
+            $('.controlmenu').removeClass("open-hiddenmenu");
+          }
+          else
+          {
+            $('.controlmenu').addClass("open-hiddenmenu");
+            $('.staticmenu').removeClass("open-hiddenmenu");
+          }
+      });
+
+$(".cross").addClass('.hideee');
+$(".menu").addClass('.hideee');
+$(".hamburger" ).click(function() {
+
+$( ".menu" ).slideToggle( "slow", function() {
+$( ".hamburger" ).addClass('.hideee');
+$( ".cross" ).addClass('.showww');
+
+});
+});
+
+$( ".cross" ).click(function() {
+$( ".menu" ).slideToggle( "slow", function() {
+$( ".cross" ).addClass('.hideee');
+$( ".hamburger" ).addClass('.showww');
+});
+});
+
+  </script>
+  <script type='text/javascript'>
+    /*Javascript language*/
+
+    /* components */
+    var enteringSign = $( '#entering' );
+    var dateSign = $( '#today' );
+    var enter = [];
+    getData();
+    var days;
+    var enteringCount;
+    var allData = [];
+    var allDate = [];
+    var isUpdateDate = true;
+
+    /* Action */
+    setInterval( function () {
+      var days = enter.length;
+      var date = new Date();
+      $.ajax({
+        url: 'http://10.32.176.4/etc/'
+      })
+      .success( function( data ) {
+        if ( data == 5 ) {
+          enteringCount++;
+          enteringSign.text( enteringCount );
+          enter[ days - 1 ] = enteringCount;
+          clear();
+        }
+        if ( date.toDateString() != allDate[ allDate.length - 1 ] && isUpdateDate == true ) {
+          enteringCount = 0;
+          enter.push( enteringCount );
+          allDate.push( date.toDateString() )
+          enteringSign.text( enteringCount );
+          allData[0] = allDate;
+          allData[1] = enter;
+          isUpdateDate = false;
+          $.ajax({
+            url: 'http://10.32.176.4/etc_data/' + allData[0].toString() + "&" + allData[1].toString() + '/set'
+          })
+        }
+        if ( date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0 ) {
+          isUpdateDate = true;
+        }
+        dateSign.text( dateToString( date.toDateString() ) + date.toLocaleTimeString() );
+      });
+    }, 1000 );
+
+    function dateToString( data ) {
+      var date = "";
+      var str = [];
+      str = data.split( " " );
+
+      date = str[0] + ", " + str[2] + " " + str[1] + " " + str[3] + " ";
+      return date;
+    }
+
+    function saveData() {
+      allData[1] = enter;
+      $.ajax({
+        url: 'http://10.32.176.4/etc_data/' + allData[0].toString() + "&" + allData[1].toString() + '/set'
+      })
+      .success( function( data ) {
+        console.log( "data is saved" );
+      });
+    }
+
+    function getData() {
+      $.ajax({
+        url: 'http://10.32.176.4/etc_data/'
+      })
+      .success( function( data ) {
+        allData = data.split( "&" );
+        allDate = allData[0].split( "," );
+        a = JSON.parse( '[' + data.split( "&" )[1] + "]" );
+        enter = a;
+        enteringSign.text( enter[enter.length - 1 ] );
+        days = enter.length;
+        enteringCount = enter[ days - 1 ];
+      });
+    }
+
+    function clear() {
+      $.ajax({
+        url: 'http://10.32.176.4/etc/' + '0/set'
+      });
+    }
+
+
+  </script>
+</body>

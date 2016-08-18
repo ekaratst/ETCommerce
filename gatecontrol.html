@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/control.css">
+    <link rel="stylesheet" type="text/css" href="css/font/stylesheet.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <!-- <link rel="stylesheet" href="/index.css"> -->
+</head>
+
+<body class="body">
+  <div class="innerbackground col-md-8 col-md-offset-2">
+  <div class="header">
+    <button class="hamburger">&#9776;</button>
+    <button class="cross">&#735;</button>
+    <h1>ETCommerce</h1>
+
+    <div class="menu">
+      <ul>
+        <a href="index.html"><li>Home</li></a>
+        <a href="daystat.html"><li>Daily Statistics</li></a>
+        <a href="shelfstat.html"><li>Shelf Statistics</li></a>
+        <a href="lightcontrol.html"><li>Light Control</li></a>
+        <a href=""><li>Gate Control</li></a>
+      </ul>
+    </div>
+    <div class="btn-group btn-group-justified navibar " role="group" aria-label="...">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn navbtn"><a href="index.html">Home</a></button>
+      </div>
+      <div class="btn-group" role="group">
+        <div class=" static">
+        <button type="button" class="btn navbtn">Statistics <img src="image/arrowdown.png"/></button>
+              <ul class="staticmenu">
+                <li><a href="daystat.html">Daily Statistics</a></li>
+                <li><a href="shelfstat.html">Shelf Statistics</a></li>
+              </ul>
+        </div>
+      </div>
+      <div class="btn-group" role="group">
+        <div class="control">
+        <button type="button" class="btn navbtn" style="color:rgb(255, 0, 46)">Shop Control<img src="image/arrowdown.png"/></button>
+          <ul class="controlmenu">
+            <li><a href="lightcontrol.html">Light Control</a></li>
+            <li><a href="">Gate Control</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container" id="container" align="center">
+    <p id="time"></p>
+    <div id="gateContainer">
+      <h1>GATE CONTROL</h1>
+      <button id="openGate">OPEN</button>
+      <button id="closeGate">CLOSE</button>
+      <br></br>
+      <p>Timer For Gate</p>
+      <div>
+        <p>OPEN</p>
+        <input id="hourgo" placeholder="hh"> </input> : <input id="minutego"placeholder="mm"> </input> : <input id="secondgo" placeholder="ss"> </input>
+      </div>
+      <div>
+        <p>CLOSE</p>
+        <input id="hourgc" placeholder="hh"> </input> : <input id="minutegc"placeholder="mm"> </input> : <input id="secondgc" placeholder="ss"> </input>
+      </div>
+      <div>
+        <button id="setg">SET</button>
+      </div>
+
+  </div>
+  </div>
+
+
+  <script lang="javascript">
+  $('.static > button').click(function(){
+        if($('.staticmenu').hasClass("open-hiddenmenu"))
+        {
+          $('.staticmenu').removeClass("open-hiddenmenu");
+        }
+        else
+        {
+          $('.staticmenu').addClass("open-hiddenmenu");
+          $('.controlmenu').removeClass("open-hiddenmenu");
+
+        }
+    });
+    $('.control > button').click(function(){
+          if($('.controlmenu').hasClass("open-hiddenmenu"))
+          {
+            $('.controlmenu').removeClass("open-hiddenmenu");
+          }
+          else
+          {
+            $('.controlmenu').addClass("open-hiddenmenu");
+            $('.staticmenu').removeClass("open-hiddenmenu");
+          }
+      });
+      $(".cross").addClass('.hideee');
+      $(".menu").addClass('.hideee');
+      $(".hamburger" ).click(function() {
+
+      $( ".menu" ).slideToggle( "slow", function() {
+      $( ".hamburger" ).addClass('.hideee');
+      $( ".cross" ).addClass('.showww');
+
+      });
+      });
+
+      $( ".cross" ).click(function() {
+      $( ".menu" ).slideToggle( "slow", function() {
+      $( ".cross" ).addClass('.hideee');
+      $( ".hamburger" ).addClass('.showww');
+      });
+      });
+  </script>
+    <script type='text/javascript'>
+      /*Javascript language*/
+
+      /* components */
+
+      var openGateButton = $( '#openGate' );
+
+      var closeGateButton = $( '#closeGate' );
+      var inputGateOpenHour = $( '#hourgo' );
+      var inputGateOpenMinute = $( '#minutego' );
+      var inputGateOpenSecond = $( '#secondgo' );
+      var inputGateCloseHour = $( '#hourgc' );
+      var inputGateCloseMinute = $( '#minutegc' );
+      var inputGateCloseSecond = $( '#secondgc' );
+      var setGateTimer = $( '#setg' );
+
+      var timing = $( '#time' );
+
+
+      var isGateOpen = 1; /* 0 for finish or not set
+                              1 for set */
+      /* Action */
+      setInterval( function() {
+        $.ajax({
+          url: 'http://10.32.176.4/etc/'
+        })
+        .success( function( data ) {
+          timing.text( timeToString() );
+
+          if ( isGateOpen == 0 ) {
+            gateTimer();
+          }
+          clear();
+        });
+      }, 1000 );
+    //  var lightoffpic = document.getElementById("lightoffpic");
+  //    var lightonpic = document.getElementById("lightonpic");
+
+      openGateButton.click( function() {
+        $.ajax({
+          url: 'http://10.32.176.4/etc/' + '3'
+        })
+        .success( function( data ) {
+          console.log( "Gate open" );
+          ///
+        });
+      })
+
+      closeGateButton.click( function() {
+        $.ajax({
+          url: 'http://10.32.176.4/etc/' + '4'
+        })
+        .success( function( data ) {
+          console.log( "Gate close" );
+          ////
+        });
+
+      })
+
+      function clear() {
+        $.ajax({
+          url: 'http://10.32.176.4/etc/' + '0/set'
+        })
+        .success( function( data ) {
+          console.log( "clear html" );
+        });
+      }
+
+
+      function gateTimer() {
+        var date = new Date();
+        var inputOpenHour = inputGateOpenHour.val();
+        var inputOpenMinute = inputGateOpenMinute.val();
+        var inputOpenSecond = inputGateOpenSecond.val();
+        var inputCloseHour = inputGateCloseHour.val();
+        var inputCloseMinute = inputGateCloseMinute.val();
+        var inputCloseSecond = inputGateCloseSecond.val();
+        var nowHour = date.getHours();
+        var nowMinute = date.getMinutes();
+        var nowSecond = date.getSeconds();
+
+        if ( inputOpenHour == nowHour && inputOpenMinute == nowMinute && inputOpenSecond == nowSecond ) {
+          $.ajax({
+            url: 'http://10.32.176.4/etc/' + '3'
+          })
+          .success( function( data ) {
+            console.log( "Gate open" );
+          });
+        }
+        if ( inputCloseHour == nowHour && inputCloseMinute == nowMinute && inputCloseSecond == nowSecond ) {
+          $.ajax({
+            url: 'http://10.32.176.4/etc/' + '4'
+          })
+          .success( function( data ) {
+            console.log( "Gate close" );
+            document.getElementById( 'hourgo' ).value = "";
+            document.getElementById( 'minutego' ).value = "";
+            document.getElementById( 'secondgo' ).value = "";
+            document.getElementById( 'hourgc' ).value = "";
+            document.getElementById( 'minutegc' ).value = "";
+            document.getElementById( 'secondgc' ).value = "";
+            isGateOpen = 1;
+          });
+        }
+      }
+
+      setGateTimer.click( function() {
+        isGateOpen = 0;
+      })
+
+      function timeToString() {
+        var date = new Date();
+        return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+      }
+    </script>
+</body>
+
+</html>

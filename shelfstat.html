@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--<link rel="stylesheet" type="text/css" href="css/font/stylesheet.css">
+-->
+<link rel="stylesheet" type="text/css" href="css/font/stylesheet.css">
+
+    <link rel="stylesheet" href="./css/main.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.min.js"></script>
+    <link rel="stylesheet" href="./css/responsive.css">
+    <style>
+      /* The snackbar - position it at the bottom and in the middle of the screen */
+      #snackbar {
+        visibility: hidden; /* Hidden by default. Visible on click */
+        min-width: 250px; /* Set a default minimum width */
+        margin-left: -125px; /* Divide value of min-width by 2 */
+        background-color: #333; /* Black background color */
+        color: #fff; /* White text color */
+        text-align: center; /* Centered text */
+        border-radius: 2px; /* Rounded borders */
+        padding: 16px; /* Padding */
+        position: fixed; /* Sit on top of the screen */
+        z-index: 1; /* Add a z-index if needed */
+        left: 50%; /* Center the snackbar */
+        bottom: 30px; /* 30px from the bottom */
+      }
+
+      /* Show the snackbar when clicking on a button (class added with JavaScript) */
+      .show {
+        visibility: visible !important; /* Show the snackbar */
+
+        /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+        However, delay the fade out process for 2.5 seconds */
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+
+      /* Animations to fade the snackbar in and out */
+      @-webkit-keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+
+      @keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+
+      @-webkit-keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+
+      @keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+    </style>
+    <title>Document</title>
+
+</head>
+
+<body class="body" onloadstart="displayGraph()">
+  <div class="innerbackground col-md-8 col-md-offset-2">
+  <div class="header">
+    <button class="hamburger">&#9776;</button>
+    <button class="cross">&#735;</button>
+    <h1>ETCommerce</h1>
+
+    <div class="menu">
+      <ul>
+        <a href="index.html"><li>Home</li></a>
+        <a href="daystat.html"><li>Daily Statistics</li></a>
+        <a href=""><li>Shelf Statistics</li></a>
+        <a href="lightcontrol.html"><li>Light Control</li></a>
+        <a href="gatecontrol.html"><li>Gate Control</li></a>
+      </ul>
+    </div>
+    <div class="btn-group btn-group-justified navibar " role="group" aria-label="...">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn navbtn"><a href="index.html">Home</a></button>
+      </div>
+      <div class="btn-group" role="group">
+        <div class=" static">
+        <button type="button" class="btn navbtn" style="color:rgb(255, 0, 46)">Statistics <img src="image/arrowdown.png"/></button>
+              <ul class="staticmenu">
+                <li><a href="daystat.html">Daily Statistics</a></li>
+                <li><a href="">Shelf Statistics</a></li>
+              </ul>
+        </div>
+      </div>
+      <div class="btn-group" role="group">
+        <div class="control">
+        <button type="button" class="btn navbtn">Shop Control<img src="image/arrowdown.png"/></button>
+          <ul class="controlmenu">
+            <li><a href="lightcontrol.html">Light Control</a></li>
+            <li><a href="gatecontrol.html">Gate Control</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav>
+    <div class="">
+      <label for="interval-select">Interval Select: </label>
+      <select name="interval"
+              id="interval-select"
+              onchange="displayGraph()">
+        <option value="week" selected="selected"> Week </option>
+        <option value="month"> Month </option>
+        <option value="year"> Year </option>
+      </select>
+      <label for="graph-select">Graph Select: </label>
+      <select name="graph"
+              id="graph-select"
+              onchange="displayGraph()">
+        <option value="pie" selected="selected"> Pie </option>
+        <option value="line"> Line </option>
+      </select>
+    </div>
+  </nav>
+    <div class="app col-md-6 col-md-offset-3" style="width:400px;height:400px;">
+      <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+  <div id="snackbar"></div>
+  <script>
+    var d = new Date();
+    var intervalChoice = document.getElementById('interval-select').value;
+    var graphChoice = document.getElementById('graph-select').value;
+    var ctx = document.getElementById("myChart").getContext("2d");
+    var labelEnum = {
+      week: [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sunday" ],
+      month: [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ],
+      year: [ "2015", "2016" ]
+    }
+    var viewHistory = {
+      week: {
+        a: [10, 22, 34, 46, 0, 0, 0],
+        b: [20, 41, 62, 83, 0, 0, 0]
+      },
+      month: {
+        a: [281, 302, 323, 344, 365, 389, 400, 421, 0, 0, 0 ,0],
+        b: [560, 572, 584, 596, 608, 610, 622, 634, 0, 0, 0 ,0]
+      },
+      year: {
+        a: [500, 421],
+        b: [498, 634]
+      }
+    };
+
+    var pieData = {
+      labels: [
+        "Shelf A",
+        "Shelf B"
+      ],
+      datasets: [
+        {
+          data: [viewHistory.week.a[d.getDay()-1], viewHistory.week.b[d.getDay()-1]],
+          backgroundColor: [
+            "#FF6384",
+            "#36A2EB",
+          ],
+          hoverBackgroundColor: [
+            "#FF6384",
+            "#36A2EB"
+          ]
+        }]
+    };
+
+    var lineData = {
+      labels: labelEnum.day,
+      datasets: [
+        {
+          label: "Shelf A",
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: "#FF6384",
+          borderColor: "#FF6384",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: "rgba(75,192,192,1)",
+          pointBackgroundColor: "#fff",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "rgba(75,192,192,1)",
+          pointHoverBorderColor: "rgba(220,220,220,1)",
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: viewHistory.week.a,
+          spanGaps: false
+        },
+        {
+          label: "Shelf B",
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: "#36A2EB",
+          borderColor: "#36A2EB",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          pointBorderColor: "rgba(75,192,192,1)",
+          pointBackgroundColor: "#fff",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "rgba(75,192,192,1)",
+          pointHoverBorderColor: "rgba(220,220,220,1)",
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: viewHistory.week.b,
+          spanGaps: false
+        }
+      ]
+    };
+
+    var myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: pieData,
+      options: {
+        display: true,
+        responsive: true,
+        responsiveAnimationDuration: 150
+      }
+    });
+    function getHistory( chartType, interval) {
+      if(interval == 'week'){
+        if(chartType == 'pie') {
+          return [viewHistory.week.a[d.getDay() - 1], viewHistory.week.b[d.getDay() - 1]];
+        }
+        else if(chartType == 'line') {
+          return [viewHistory.week.a, viewHistory.week.b];
+        }
+      } else if(interval == 'month'){
+          if(chartType == 'pie') {
+            return [viewHistory.month.a[d.getMonth() - 1], viewHistory.month.b[d.getMonth() - 1]];
+          }
+          else if(chartType == 'line') {
+            return [viewHistory.month.a, viewHistory.month.b];
+          }
+      } else if(interval == 'year'){
+          if(chartType == 'pie') {
+            return [viewHistory.year.a[1], viewHistory.year.b[1]];
+          }
+          else if(chartType == 'line') {
+            return [viewHistory.year.a, viewHistory.year.b];
+          }
+      } else {
+        return {message: "Error in getHistory"};
+      }
+    }
+
+    function setData(shelf, week, month, year) {
+      var x = document.getElementById("snackbar");
+      if (shelf == 'a') {
+        viewHistory.week.a[week] += 1;
+        viewHistory.month.a[month] += 1;
+        viewHistory.year.a[year] += 1;
+        x.innerHTML = "Some people is watching 'A' shelf!";
+    }
+      else if (shelf == 'b') {
+        viewHistory.week.b[week] += 1;
+        viewHistory.month.b[month] += 1;
+        viewHistory.year.b[year] += 1;
+        x.innerHTML = "Some people is watching 'B' shelf!";
+      }
+      else {return 0;}
+      showSnackbar();
+      displayGraph();
+    }
+
+    function showSnackbar() {
+      // Get the snackbar DIV
+      var x = document.getElementById("snackbar");
+
+      // Add the "show" class to DIV
+      x.className = "show";
+
+      // After 3 seconds, remove the show class from DIV
+      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+
+    function displayGraph () {
+      intervalChoice = document.getElementById('interval-select').value;
+      graphChoice = document.getElementById('graph-select').value;
+      if(graphChoice == 'pie'){
+        myChart.destroy();
+        pieData.datasets[0].data = getHistory(graphChoice, intervalChoice);
+        myChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: pieData,
+          options: {
+            display: true,
+            responsive: true,
+            responsiveAnimationDuration: 150
+          }
+        });
+        myChart.update();
+      } else if(graphChoice == 'line') {
+        myChart.destroy();
+        lineData.labels = labelEnum[intervalChoice];
+        console.log(lineData.datasets);
+        lineData.datasets[0].data = getHistory(graphChoice, intervalChoice)[0];
+        lineData.datasets[1].data = getHistory(graphChoice, intervalChoice)[1];
+        myChart = new Chart(ctx, {
+          type: 'line',
+          data: lineData
+        });
+        myChart.update();
+      } else {}
+    }
+
+    function isWeekEnd() {
+      if (d.getDay() == 1){
+        viewHistory.week = [0, 0, 0, 0, 0, 0, 0];
+      }
+    }
+
+    function isMonthEnd() {
+      if (d.getMonth() == 1){
+        viewHistory.month = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      }
+    }
+
+    function isYearEnd() {
+      if (d.getDate() == 1 && d.getMonth() == 1 ){
+        viewHistory.year.push(0);
+      }
+    }
+
+    setInterval( function(){
+      $.ajax({ url: 'http://10.32.176.4/etc/' }).done( function( data ) {
+        var shelf = {
+          A: 6,
+          B: 7
+        }
+        if ( data == shelf.A ){
+          setData('a', d.getDay()-1, d.getMonth()-1, viewHistory.year[viewHistory.year.length - 1]);
+          clear();
+        }
+        else if (data == shelf.B ){
+          setData('b', d.getDay()-1, d.getMonth()-1, viewHistory.year[viewHistory.year.length - 1]);
+          clear();
+        }
+        else {}
+
+      });
+      isWeekEnd();
+      isMonthEnd();
+      isYearEnd();
+    },1000);
+
+    function clear() {
+      $.ajax({
+        url: 'http://10.32.176.4/etc/' + '0/set'
+      })
+      .done( function( data ) {
+        console.log( "clear" );
+      });
+    }
+
+  </script>
+</body>
+<script lang="javascript">
+$('.static > button').click(function(){
+      if($('.staticmenu').hasClass("open-hiddenmenu"))
+      {
+        $('.staticmenu').removeClass("open-hiddenmenu");
+      }
+      else
+      {
+        $('.staticmenu').addClass("open-hiddenmenu");
+        $('.controlmenu').removeClass("open-hiddenmenu");
+
+      }
+  });
+  $('.control > button').click(function(){
+        if($('.controlmenu').hasClass("open-hiddenmenu"))
+        {
+          $('.controlmenu').removeClass("open-hiddenmenu");
+        }
+        else
+        {
+          $('.controlmenu').addClass("open-hiddenmenu");
+          $('.staticmenu').removeClass("open-hiddenmenu");
+        }
+    });
+    $(".cross").addClass('.hideee');
+    $(".menu").addClass('.hideee');
+    $(".hamburger" ).click(function() {
+
+    $( ".menu" ).slideToggle( "slow", function() {
+    $( ".hamburger" ).addClass('.hideee');
+    $( ".cross" ).addClass('.showww');
+
+    });
+    });
+
+    $( ".cross" ).click(function() {
+    $( ".menu" ).slideToggle( "slow", function() {
+    $( ".cross" ).addClass('.hideee');
+    $( ".hamburger" ).addClass('.showww');
+    });
+    });
+</script>
